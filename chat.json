@@ -14,5 +14,20 @@
         "source": "web_client",
         "content": "create a frontend for the sc address 0x1F98431c8aD98523631AE4a59f267346ea31F984\t in ethreum",
         "metadata": {}
+    },
+    {
+        "id": "664c6151-e47d-4aee-8469-0a48a67209ef",
+        "timestamp": "2024-11-25T15:21:01.148814Z",
+        "role": "tool_call",
+        "source": "base_assistant",
+        "content": null,
+        "metadata": {
+            "id": "call_kj9O4Jhy2MEUnPRrTVsg3aBr",
+            "function": {
+                "arguments": "{}",
+                "name": "TransferToSmartContractAssistant"
+            },
+            "type": "function"
+        }
     }
 ]
