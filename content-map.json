@@ -1,0 +1,23 @@
+{
+    "name": "example",
+    "prefix": "%#PLACEHOLDER",
+    "placeholderMappings": {
+        "Header": [
+            "APPLICATION_NAME"
+        ],
+        "Hero": [
+            "HERO_HEADING_TEXT",
+            "HERO_SUBHEADING_TEXT"
+        ],
+        "Footer": [
+            "APPLICATION_NAME",
+            "FOOTER_TEXT"
+        ]
+    },
+    "placeholders": {
+        "APPLICATION_NAME": "BottleHub",
+        "HERO_HEADING_TEXT": "Revolutionize Your Hydration Experience",
+        "HERO_SUBHEADING_TEXT": "Discover, compare, and customize the perfect bottle for your lifestyle. From eco-friendly options to high-tech smart bottles, find your ideal companion for every sip.",
+        "FOOTER_TEXT": "\u00a9 2023 BottleHub. Stay hydrated, stay inspired."
+    }
+}
