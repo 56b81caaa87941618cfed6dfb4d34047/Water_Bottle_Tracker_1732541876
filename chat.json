@@ -167,5 +167,15 @@
         "source": "smart_contract_assistant",
         "content": "I have already created a frontend for the smart contract at 0x1F98431c8aD98523631AE4a59f267346ea31F984 on Ethereum in the Hero component. Is there anything else you'd like to do?",
         "metadata": {}
+    },
+    {
+        "id": "921d2f98-f05c-4a9c-9074-cbcbcf458f94",
+        "timestamp": "2024-11-25T15:45:00.487854Z",
+        "role": "user",
+        "source": "web_client",
+        "content": "do it on the hero",
+        "metadata": {
+            "component_id": "Hero1732541879"
+        }
     }
 ]
