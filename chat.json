@@ -256,5 +256,13 @@
         "source": "base_assistant",
         "content": "I've removed `{ useState, useEffect }` from the imports in the Hero component. Is there anything else you'd like to do?",
         "metadata": {}
+    },
+    {
+        "id": "5f1d8508-a430-4a97-b1ac-a6c04da44e51",
+        "timestamp": "2024-11-26T09:08:07.581475Z",
+        "role": "user",
+        "source": "web_client",
+        "content": "yes, there where is necesary use React.useState and not React.useEffect",
+        "metadata": {}
     }
 ]
