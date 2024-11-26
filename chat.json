@@ -115,5 +115,15 @@
         "source": "tool:DeployAndGenerateFrontend",
         "content": "Okay, I'm deploying the contract...",
         "metadata": {}
+    },
+    {
+        "id": "e2cf3530-7cc9-4888-b218-62fd29dafc40",
+        "timestamp": "2024-11-26T08:57:49.115526Z",
+        "role": "tool_result",
+        "source": "DeployAndGenerateFrontend",
+        "content": "Success: deployed contract to 0xFb0b65497fFd92B32c8899aEe19bb645cE1f7960 in Holesky",
+        "metadata": {
+            "tool_call_id": "call_Q7vkArpKJMzqtNRnN3b9OZqK"
+        }
     }
 ]
