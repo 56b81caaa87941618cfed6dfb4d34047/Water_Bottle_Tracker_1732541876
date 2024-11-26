@@ -1,14 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { ethers } from 'ethers';
 
 const StakingHeader: React.FC = () => {
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [amount, setAmount] = useState('');
-  const [stakedBalance, setStakedBalance] = useState('');
-  const [result, setResult] = useState('');
+  const [provider, setProvider] = React.useState<ethers.providers.Web3Provider | null>(null);
+  const [signer, setSigner] = React.useState<ethers.Signer | null>(null);
+  const [contract, setContract] = React.useState<ethers.Contract | null>(null);
+  const [amount, setAmount] = React.useState('');
+  const [stakedBalance, setStakedBalance] = React.useState('');
+  const [result, setResult] = React.useState('');
 
   const contractAddress = '0xFb0b65497fFd92B32c8899aEe19bb645cE1f7960';
   const chainId = 17000; // Holesky testnet
@@ -55,7 +55,7 @@ const StakingHeader: React.FC = () => {
     }
   ];
 
-  useEffect(() => {
+  React.useEffect(() => {
     const init = async () => {
       if (window.ethereum) {
         const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
