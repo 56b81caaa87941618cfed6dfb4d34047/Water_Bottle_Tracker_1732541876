@@ -1,6 +1,6 @@
 
 import React from 'react';
-import ethers from 'ethers';
+import { ethers } from 'ethers';
 
 const StakingComponent: React.FC = () => {
   const [walletAddress, setWalletAddress] = React.useState<string>('');
@@ -24,7 +24,7 @@ const StakingComponent: React.FC = () => {
   const checkWalletConnection = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new ethers.BrowserProvider(window.ethereum);
         const network = await provider.getNetwork();
         if (network.chainId !== chainId) {
           await switchNetwork();
@@ -44,9 +44,9 @@ const StakingComponent: React.FC = () => {
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new ethers.BrowserProvider(window.ethereum);
         await provider.send("eth_requestAccounts", []);
-        const signer = provider.getSigner();
+        const signer = await provider.getSigner();
         const address = await signer.getAddress();
         setWalletAddress(address);
         fetchStakedBalance(address);
@@ -70,7 +70,7 @@ const StakingComponent: React.FC = () => {
 
   const fetchStakedBalance = async (address: string) => {
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const balance = await contract.getStakedBalance(address);
       setStakedBalance(ethers.utils.formatEther(balance));
@@ -81,7 +81,7 @@ const StakingComponent: React.FC = () => {
 
   const fetchTotalStaked = async () => {
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
       const contract = new ethers.Contract(contractAddress, contractABI, provider);
       const total = await contract.totalStaked();
       setTotalStaked(ethers.utils.formatEther(total));
@@ -93,8 +93,8 @@ const StakingComponent: React.FC = () => {
   const handleStake = async () => {
     if (!stakeAmount) return;
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const signer = provider.getSigner();
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
       const contract = new ethers.Contract(contractAddress, contractABI, signer);
       const tx = await contract.stake({ value: ethers.utils.parseEther(stakeAmount) });
       await tx.wait();
