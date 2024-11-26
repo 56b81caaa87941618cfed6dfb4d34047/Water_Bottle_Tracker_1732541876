@@ -182,5 +182,13 @@
         "source": "smart_contract_assistant",
         "content": "The frontend has been successfully updated to interact with the staking smart contract on the Holesky network. Users can now stake ETH, withdraw their staked ETH, and check their staked balance. Let me know if you need any further adjustments!",
         "metadata": {}
+    },
+    {
+        "id": "ac84b016-e036-46ad-afde-ad46bd455b35",
+        "timestamp": "2024-11-26T09:06:01.764353Z",
+        "role": "user",
+        "source": "web_client",
+        "content": "get rid of { useState, useEffect } in the imports",
+        "metadata": {}
     }
 ]
