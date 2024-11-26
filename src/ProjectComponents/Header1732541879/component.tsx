@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ethers } from 'ethers';
+import * as ethers from 'ethers';
 
 const StakingComponent: React.FC = () => {
   const [walletAddress, setWalletAddress] = React.useState<string>('');
