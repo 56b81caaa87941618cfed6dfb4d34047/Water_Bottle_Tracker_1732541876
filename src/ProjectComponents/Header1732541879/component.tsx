@@ -22,47 +22,64 @@ const StakingComponent: React.FC = () => {
   }, []);
 
   const checkWalletConnection = async () => {
+    console.log("Checking wallet connection...");
     if (typeof window.ethereum !== 'undefined') {
       try {
+        console.log("Ethereum object found");
         const provider = new ethers.BrowserProvider(window.ethereum);
         const network = await provider.getNetwork();
+        console.log("Current network:", network.chainId);
         if (network.chainId !== chainId) {
+          console.log("Incorrect network, switching...");
           await switchNetwork();
         }
         const accounts = await provider.listAccounts();
+        console.log("Accounts:", accounts);
         if (accounts.length > 0) {
+          console.log("Wallet connected:", accounts[0]);
           setWalletAddress(accounts[0]);
           fetchStakedBalance(accounts[0]);
           fetchTotalStaked();
+        } else {
+          console.log("No accounts found");
         }
       } catch (error) {
         console.error("Error checking wallet connection:", error);
       }
+    } else {
+      console.log("Ethereum object not found");
     }
   };
 
   const connectWallet = async () => {
+    console.log("Connecting wallet...");
     if (typeof window.ethereum !== 'undefined') {
       try {
         const provider = new ethers.BrowserProvider(window.ethereum);
+        console.log("Requesting accounts...");
         await provider.send("eth_requestAccounts", []);
         const signer = await provider.getSigner();
         const address = await signer.getAddress();
+        console.log("Wallet connected:", address);
         setWalletAddress(address);
         fetchStakedBalance(address);
         fetchTotalStaked();
       } catch (error) {
         console.error("Error connecting wallet:", error);
       }
+    } else {
+      console.log("Ethereum object not found");
     }
   };
 
   const switchNetwork = async () => {
+    console.log("Switching network...");
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: `0x${chainId.toString(16)}` }],
       });
+      console.log("Network switched successfully");
     } catch (error) {
       console.error("Error switching network:", error);
     }
