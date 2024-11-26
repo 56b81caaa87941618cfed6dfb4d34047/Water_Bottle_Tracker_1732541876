@@ -26,7 +26,7 @@ const StakingComponent: React.FC = () => {
     if (typeof window.ethereum !== 'undefined') {
       try {
         console.log("Ethereum object found");
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new Ethers.providers.Web3Provider(window.ethereum);
         const network = await provider.getNetwork();
         console.log("Current network:", network.chainId);
         if (network.chainId !== chainId) {
@@ -55,7 +55,7 @@ const StakingComponent: React.FC = () => {
     console.log("Connecting wallet...");
     if (typeof window.ethereum !== 'undefined') {
       try {
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const provider = new Ethers.providers.Web3Provider(window.ethereum);
         console.log("Requesting accounts...");
         await provider.send("eth_requestAccounts", []);
         const signer = await provider.getSigner();
