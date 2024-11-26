@@ -1,12 +1,12 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ethers from 'ethers';
 
 const StakingComponent: React.FC = () => {
-  const [walletAddress, setWalletAddress] = useState<string>('');
-  const [stakedBalance, setStakedBalance] = useState<string>('0');
-  const [totalStaked, setTotalStaked] = useState<string>('0');
-  const [stakeAmount, setStakeAmount] = useState<string>('');
+  const [walletAddress, setWalletAddress] = React.useState<string>('');
+  const [stakedBalance, setStakedBalance] = React.useState<string>('0');
+  const [totalStaked, setTotalStaked] = React.useState<string>('0');
+  const [stakeAmount, setStakeAmount] = React.useState<string>('');
 
   const contractAddress = '0xFb0b65497fFd92B32c8899aEe19bb645cE1f7960';
   const chainId = 17000; // Holesky testnet
@@ -17,7 +17,7 @@ const StakingComponent: React.FC = () => {
     "function totalStaked() external view returns (uint256)"
   ];
 
-  useEffect(() => {
+  React.useEffect(() => {
     checkWalletConnection();
   }, []);
 
