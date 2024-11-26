@@ -1,8 +1,15 @@
-
 import React from 'react';
 import { ethers } from 'ethers';
 
 const StakingInteraction: React.FC = () => {
+  const [provider, setProvider] = React.useState<ethers.providers.Web3Provider | null>(null);
+  const [signer, setSigner] = React.useState<ethers.Signer | null>(null);
+  const [contract, setContract] = React.useState<ethers.Contract | null>(null);
+  const [isConnected, setIsConnected] = React.useState(false);
+  const [chainId, setChainId] = React.useState<number | null>(null);
+  const [result, setResult] = React.useState<string>('');
+  const [totalStaked, setTotalStaked] = React.useState<string>('0');
+  const [userStakedBalance, setUserStakedBalance] = React.useState<string>('0');
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
@@ -20,9 +27,6 @@ const StakingInteraction: React.FC = () => {
     "function totalStaked() external view returns (uint256)"
   ];
 
-  useEffect(() => {
-    connectWallet();
-  }, []);
 
   const connectWallet = async () => {
     if (typeof window.ethereum !== 'undefined') {
@@ -118,8 +122,11 @@ const StakingInteraction: React.FC = () => {
     }
   };
 
+  React.useEffect(() => {
+    connectWallet();
+  }, []);
+
   return (
-    <div className="bg-gray-100 min-h-screen p-5">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-5">
         <h1 className="text-2xl font-bold mb-4">Staking Interaction (Holesky Testnet)</h1>
         
