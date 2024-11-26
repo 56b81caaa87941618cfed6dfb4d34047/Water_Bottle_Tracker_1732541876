@@ -90,7 +90,7 @@ const StakingComponent: React.FC = () => {
       const provider = new Ethers.providers.Web3Provider(window.ethereum);
       const contract = new Ethers.Contract(contractAddress, contractABI, provider);
       const balance = await contract.getStakedBalance(address);
-      setStakedBalance(ethers.utils.formatEther(balance));
+      setStakedBalance(parseFloat(ethers.utils.formatEther(balance)).toFixed(6));
     } catch (error) {
       console.error("Error fetching staked balance:", error);
     }
@@ -101,7 +101,7 @@ const StakingComponent: React.FC = () => {
       const provider = new Ethers.providers.Web3Provider(window.ethereum);
       const contract = new Ethers.Contract(contractAddress, contractABI, provider);
       const total = await contract.totalStaked();
-      setTotalStaked(ethers.utils.formatEther(total));
+      setTotalStaked(parseFloat(ethers.utils.formatEther(total)).toFixed(6));
     } catch (error) {
       console.error("Error fetching total staked:", error);
     }
