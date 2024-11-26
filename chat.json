@@ -92,5 +92,20 @@
         "metadata": {
             "component_id": "Footer1732541879"
         }
+    },
+    {
+        "id": "0cd37159-29ea-467e-b984-182077a4e73c",
+        "timestamp": "2024-11-26T08:57:11.992899Z",
+        "role": "tool_call",
+        "source": "smart_contract_assistant",
+        "content": null,
+        "metadata": {
+            "id": "call_Q7vkArpKJMzqtNRnN3b9OZqK",
+            "function": {
+                "arguments": "{\"contract_id\":\"StakingHOLESKY_ETH\",\"frontend_description\":\"A frontend component to interact with the StakingHOLESKY_ETH contract.\",\"acknowledgement_message\":\"Okay, I'm deploying the contract...\"}",
+                "name": "DeployAndGenerateFrontend"
+            },
+            "type": "function"
+        }
     }
 ]
