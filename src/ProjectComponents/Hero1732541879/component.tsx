@@ -2,60 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-const UniswapV3FactoryInteraction: React.FC = () => {
+const StakingInteraction: React.FC = () => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [chainId, setChainId] = useState<number | null>(null);
   const [result, setResult] = useState<string>('');
+  const [totalStaked, setTotalStaked] = useState<string>('0');
+  const [userStakedBalance, setUserStakedBalance] = useState<string>('0');
 
-  const contractAddress = '0x1F98431c8aD98523631AE4a59f267346ea31F984';
+  const contractAddress = '0xFb0b65497fFd92B32c8899aEe19bb645cE1f7960';
   const contractABI = [
-    {
-      "name": "createPool",
-      "stateMutability": "nonpayable",
-      "inputs": [
-        { "name": "tokenA", "type": "address" },
-        { "name": "tokenB", "type": "address" },
-        { "name": "fee", "type": "uint24" }
-      ],
-      "outputs": [{ "name": "pool", "type": "address" }]
-    },
-    {
-      "name": "getPool",
-      "stateMutability": "view",
-      "inputs": [
-        { "name": "", "type": "address" },
-        { "name": "", "type": "address" },
-        { "name": "", "type": "uint24" }
-      ],
-      "outputs": [{ "name": "", "type": "address" }]
-    },
-    {
-      "name": "feeAmountTickSpacing",
-      "stateMutability": "view",
-      "inputs": [{ "name": "", "type": "uint24" }],
-      "outputs": [{ "name": "", "type": "int24" }]
-    },
-    {
-      "name": "owner",
-      "stateMutability": "view",
-      "inputs": [],
-      "outputs": [{ "name": "", "type": "address" }]
-    },
-    {
-      "name": "parameters",
-      "stateMutability": "view",
-      "inputs": [],
-      "outputs": [
-        { "name": "factory", "type": "address" },
-        { "name": "token0", "type": "address" },
-        { "name": "token1", "type": "address" },
-        { "name": "fee", "type": "uint24" },
-        { "name": "tickSpacing", "type": "int24" }
-      ]
-    }
+    "function stake() external payable",
+    "function withdraw(uint256 amount) external",
+    "function getStakedBalance(address account) external view returns (uint256)",
+    "function totalStaked() external view returns (uint256)"
   ];
 
   useEffect(() => {
@@ -70,11 +32,12 @@ const UniswapV3FactoryInteraction: React.FC = () => {
         setProvider(web3Provider);
         const web3Signer = web3Provider.getSigner();
         setSigner(web3Signer);
-        const uniswapContract = new ethers.Contract(contractAddress, contractABI, web3Signer);
-        setContract(uniswapContract);
+        const stakingContract = new ethers.Contract(contractAddress, contractABI, web3Signer);
+        setContract(stakingContract);
         setIsConnected(true);
         const network = await web3Provider.getNetwork();
         setChainId(network.chainId);
+        await updateStakingInfo();
       } catch (error) {
         console.error('Failed to connect wallet:', error);
         setResult('Failed to connect wallet. Please try again.');
@@ -88,88 +51,77 @@ const UniswapV3FactoryInteraction: React.FC = () => {
     if (!isConnected) {
       await connectWallet();
     }
-    if (chainId !== 1) {
+    if (chainId !== 17000) {
       try {
         await window.ethereum.request({
           method: 'wallet_switchEthereumChain',
-          params: [{ chainId: '0x1' }],
+          params: [{ chainId: '0x4268' }],
         });
         const network = await provider!.getNetwork();
         setChainId(network.chainId);
       } catch (error) {
         console.error('Failed to switch network:', error);
-        setResult('Please switch to the Ethereum mainnet to interact with this contract.');
+        setResult('Please switch to the Holesky testnet to interact with this contract.');
         return false;
       }
     }
     return true;
   };
 
-  const createPool = async (tokenA: string, tokenB: string, fee: number) => {
-    if (!await checkConnection()) return;
-    try {
-      const tx = await contract!.createPool(tokenA, tokenB, fee);
-      const receipt = await tx.wait();
-      setResult(`Pool created. Transaction hash: ${receipt.transactionHash}`);
-    } catch (error) {
-      console.error('Error creating pool:', error);
-      setResult('Error creating pool. Please check your inputs and try again.');
+  const updateStakingInfo = async () => {
+    if (contract) {
+      const total = await contract.totalStaked();
+      setTotalStaked(ethers.utils.formatEther(total));
+      const userAddress = await signer!.getAddress();
+      const userBalance = await contract.getStakedBalance(userAddress);
+      setUserStakedBalance(ethers.utils.formatEther(userBalance));
     }
   };
 
-  const getPool = async (tokenA: string, tokenB: string, fee: number) => {
+  const stake = async () => {
     if (!await checkConnection()) return;
+    const amount = (document.getElementById('stakeAmount') as HTMLInputElement).value;
     try {
-      const poolAddress = await contract!.getPool(tokenA, tokenB, fee);
-      setResult(`Pool address: ${poolAddress}`);
+      const tx = await contract!.stake({ value: ethers.utils.parseEther(amount) });
+      await tx.wait();
+      setResult(`Successfully staked ${amount} ETH`);
+      await updateStakingInfo();
     } catch (error) {
-      console.error('Error getting pool:', error);
-      setResult('Error getting pool. Please check your inputs and try again.');
+      console.error('Error staking:', error);
+      setResult('Error staking. Please check your input and try again.');
     }
   };
 
-  const getFeeAmountTickSpacing = async (fee: number) => {
+  const withdraw = async () => {
     if (!await checkConnection()) return;
+    const amount = (document.getElementById('withdrawAmount') as HTMLInputElement).value;
     try {
-      const tickSpacing = await contract!.feeAmountTickSpacing(fee);
-      setResult(`Tick spacing for fee ${fee}: ${tickSpacing}`);
+      const tx = await contract!.withdraw(ethers.utils.parseEther(amount));
+      await tx.wait();
+      setResult(`Successfully withdrew ${amount} ETH`);
+      await updateStakingInfo();
     } catch (error) {
-      console.error('Error getting fee amount tick spacing:', error);
-      setResult('Error getting fee amount tick spacing. Please check your input and try again.');
+      console.error('Error withdrawing:', error);
+      setResult('Error withdrawing. Please check your balance and try again.');
     }
   };
 
-  const getOwner = async () => {
+  const checkBalance = async () => {
     if (!await checkConnection()) return;
     try {
-      const ownerAddress = await contract!.owner();
-      setResult(`Contract owner: ${ownerAddress}`);
+      const userAddress = await signer!.getAddress();
+      const balance = await contract!.getStakedBalance(userAddress);
+      setResult(`Your staked balance: ${ethers.utils.formatEther(balance)} ETH`);
     } catch (error) {
-      console.error('Error getting owner:', error);
-      setResult('Error getting owner. Please try again.');
-    }
-  };
-
-  const getParameters = async () => {
-    if (!await checkConnection()) return;
-    try {
-      const params = await contract!.parameters();
-      setResult(`Parameters:
-        Factory: ${params.factory}
-        Token0: ${params.token0}
-        Token1: ${params.token1}
-        Fee: ${params.fee}
-        Tick Spacing: ${params.tickSpacing}`);
-    } catch (error) {
-      console.error('Error getting parameters:', error);
-      setResult('Error getting parameters. Please try again.');
+      console.error('Error checking balance:', error);
+      setResult('Error checking balance. Please try again.');
     }
   };
 
   return (
     <div className="bg-gray-100 min-h-screen p-5">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow-md p-5">
-        <h1 className="text-2xl font-bold mb-4">UniswapV3Factory Interaction</h1>
+        <h1 className="text-2xl font-bold mb-4">Staking Interaction (Holesky Testnet)</h1>
         
         <div className="mb-4">
           <p>Wallet Status: {isConnected ? 'Connected' : 'Not Connected'}</p>
@@ -182,49 +134,29 @@ const UniswapV3FactoryInteraction: React.FC = () => {
         </div>
 
         <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Create Pool</h2>
-          <input id="tokenA" placeholder="Token A Address" className="border p-2 mr-2"/>
-          <input id="tokenB" placeholder="Token B Address" className="border p-2 mr-2"/>
-          <input id="fee" type="number" placeholder="Fee" className="border p-2 mr-2"/>
-          <button onClick={() => createPool(
-            (document.getElementById('tokenA') as HTMLInputElement).value,
-            (document.getElementById('tokenB') as HTMLInputElement).value,
-            parseInt((document.getElementById('fee') as HTMLInputElement).value)
-          )} className="bg-green-500 text-white px-4 py-2 rounded">
-            Create Pool
+          <p>Total Staked: {totalStaked} ETH</p>
+          <p>Your Staked Balance: {userStakedBalance} ETH</p>
+        </div>
+
+        <div className="mb-4">
+          <h2 className="text-xl font-semibold mb-2">Stake ETH</h2>
+          <input id="stakeAmount" type="number" step="0.01" placeholder="Amount to stake" className="border p-2 mr-2"/>
+          <button onClick={stake} className="bg-green-500 text-white px-4 py-2 rounded">
+            Stake
           </button>
         </div>
 
         <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Get Pool</h2>
-          <input id="getTokenA" placeholder="Token A Address" className="border p-2 mr-2"/>
-          <input id="getTokenB" placeholder="Token B Address" className="border p-2 mr-2"/>
-          <input id="getFee" type="number" placeholder="Fee" className="border p-2 mr-2"/>
-          <button onClick={() => getPool(
-            (document.getElementById('getTokenA') as HTMLInputElement).value,
-            (document.getElementById('getTokenB') as HTMLInputElement).value,
-            parseInt((document.getElementById('getFee') as HTMLInputElement).value)
-          )} className="bg-blue-500 text-white px-4 py-2 rounded">
-            Get Pool
+          <h2 className="text-xl font-semibold mb-2">Withdraw ETH</h2>
+          <input id="withdrawAmount" type="number" step="0.01" placeholder="Amount to withdraw" className="border p-2 mr-2"/>
+          <button onClick={withdraw} className="bg-red-500 text-white px-4 py-2 rounded">
+            Withdraw
           </button>
         </div>
 
         <div className="mb-4">
-          <h2 className="text-xl font-semibold mb-2">Get Fee Amount Tick Spacing</h2>
-          <input id="tickSpacingFee" type="number" placeholder="Fee" className="border p-2 mr-2"/>
-          <button onClick={() => getFeeAmountTickSpacing(
-            parseInt((document.getElementById('tickSpacingFee') as HTMLInputElement).value)
-          )} className="bg-purple-500 text-white px-4 py-2 rounded">
-            Get Tick Spacing
-          </button>
-        </div>
-
-        <div className="mb-4">
-          <button onClick={getOwner} className="bg-yellow-500 text-white px-4 py-2 rounded mr-2">
-            Get Owner
-          </button>
-          <button onClick={getParameters} className="bg-pink-500 text-white px-4 py-2 rounded">
-            Get Parameters
+          <button onClick={checkBalance} className="bg-yellow-500 text-white px-4 py-2 rounded">
+            Check Balance
           </button>
         </div>
 
@@ -237,4 +169,4 @@ const UniswapV3FactoryInteraction: React.FC = () => {
   );
 };
 
-export { UniswapV3FactoryInteraction as component };
+export { StakingInteraction as component };
