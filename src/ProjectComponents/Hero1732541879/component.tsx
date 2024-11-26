@@ -10,14 +10,6 @@ const StakingInteraction: React.FC = () => {
   const [result, setResult] = React.useState<string>('');
   const [totalStaked, setTotalStaked] = React.useState<string>('0');
   const [userStakedBalance, setUserStakedBalance] = React.useState<string>('0');
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
-  const [signer, setSigner] = useState<ethers.Signer | null>(null);
-  const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [isConnected, setIsConnected] = useState(false);
-  const [chainId, setChainId] = useState<number | null>(null);
-  const [result, setResult] = useState<string>('');
-  const [totalStaked, setTotalStaked] = useState<string>('0');
-  const [userStakedBalance, setUserStakedBalance] = useState<string>('0');
 
   const contractAddress = '0xFb0b65497fFd92B32c8899aEe19bb645cE1f7960';
   const contractABI = [
