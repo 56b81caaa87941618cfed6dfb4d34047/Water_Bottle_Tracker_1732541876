@@ -41,5 +41,20 @@
         "metadata": {
             "tool_call_id": "call_Jrc0DZpdKGLwJDxMngxgrtr0"
         }
+    },
+    {
+        "id": "55f44253-0900-4eb6-8389-0bfd45cda02d",
+        "timestamp": "2024-11-26T08:53:57.588373Z",
+        "role": "tool_call",
+        "source": "smart_contract_assistant",
+        "content": null,
+        "metadata": {
+            "id": "call_yH3mrj7V5XgedW3SgDM7HXTA",
+            "function": {
+                "arguments": "{\"contract_id\":\"StakingHOLESKY_ETH\",\"description\":\"A smart contract to allow users to stake HOLESKY ETH.\",\"acknowledgement_message\":\"Okay, I'm generating the smart contract...\"}",
+                "name": "WriteSmartContract"
+            },
+            "type": "function"
+        }
     }
 ]
