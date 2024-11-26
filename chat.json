@@ -914,5 +914,15 @@
         "source": "tool:EditFrontendComponent",
         "content": "Increasing the number of decimals displayed in the staked ETH balances...",
         "metadata": {}
+    },
+    {
+        "id": "d5c129a0-1f42-4205-a5a4-9fbc2399fd52",
+        "timestamp": "2024-11-26T10:23:52.702192Z",
+        "role": "tool_result",
+        "source": "EditFrontendComponent",
+        "content": "diff --git a/src/ProjectComponents/Header1732541879/component.tsx b/src/ProjectComponents/Header1732541879/component.tsx\nindex 0a9bc4d..91bcbb5 100644\n--- a/src/ProjectComponents/Header1732541879/component.tsx\n+++ b/src/ProjectComponents/Header1732541879/component.tsx\n@@ -90,7 +90,7 @@ const StakingComponent: React.FC = () => {\n       const provider = new Ethers.providers.Web3Provider(window.ethereum);\n       const contract = new Ethers.Contract(contractAddress, contractABI, provider);\n       const balance = await contract.getStakedBalance(address);\n-      setStakedBalance(ethers.utils.formatEther(balance));\n+      setStakedBalance(parseFloat(ethers.utils.formatEther(balance)).toFixed(6));\n     } catch (error) {\n       console.error(\"Error fetching staked balance:\", error);\n     }\n@@ -101,7 +101,7 @@ const StakingComponent: React.FC = () => {\n       const provider = new Ethers.providers.Web3Provider(window.ethereum);\n       const contract = new Ethers.Contract(contractAddress, contractABI, provider);\n       const total = await contract.totalStaked();\n-      setTotalStaked(ethers.utils.formatEther(total));\n+      setTotalStaked(parseFloat(ethers.utils.formatEther(total)).toFixed(6));\n     } catch (error) {\n       console.error(\"Error fetching total staked:\", error);\n     }\n",
+        "metadata": {
+            "tool_call_id": "call_GUaiUq1mtOvas9FHbv4Ft5J1"
+        }
     }
 ]
