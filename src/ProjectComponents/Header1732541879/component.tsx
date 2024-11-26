@@ -1,196 +1,94 @@
 
-import React from 'react';
-import { ethers } from 'ethers';
+// Add these state variables
+const [account, setAccount] = React.useState<string | null>(null);
+const [isConnecting, setIsConnecting] = React.useState(false);
 
-const StakingHeader: React.FC = () => {
-  const [provider, setProvider] = React.useState<ethers.providers.Web3Provider | null>(null);
-  const [signer, setSigner] = React.useState<ethers.Signer | null>(null);
-  const [contract, setContract] = React.useState<ethers.Contract | null>(null);
-  const [amount, setAmount] = React.useState('');
-  const [stakedBalance, setStakedBalance] = React.useState('');
-  const [result, setResult] = React.useState('');
+// Modified useEffect to handle events
+React.useEffect(() => {
+  if (!window.ethereum) {
+    setResult("Please install MetaMask to use this dApp");
+    return;
+  }
 
-  const contractAddress = '0xFb0b65497fFd92B32c8899aEe19bb645cE1f7960';
-  const chainId = 17000; // Holesky testnet
-
-  const contractABI = [
-    {
-      "inputs": [],
-      "name": "stake",
-      "outputs": [],
-      "stateMutability": "payable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "amount",
-          "type": "uint256"
-        }
-      ],
-      "name": "withdraw",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "getStakedBalance",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    }
-  ];
-
-  React.useEffect(() => {
-    const init = async () => {
-      if (window.ethereum) {
-        const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-        setProvider(web3Provider);
-        const web3Signer = web3Provider.getSigner();
-        setSigner(web3Signer);
-        const stakingContract = new ethers.Contract(contractAddress, contractABI, web3Signer);
-        setContract(stakingContract);
-      }
-    };
-
-    init();
-  }, []);
-
-  const connectWallet = async () => {
-    if (provider) {
-      try {
-        await provider.send("eth_requestAccounts", []);
-        const web3Signer = provider.getSigner();
-        setSigner(web3Signer);
-      } catch (error) {
-        console.error("Failed to connect wallet:", error);
-        setResult("Failed to connect wallet. Please try again.");
-      }
-    }
-  };
-
-  const switchChain = async () => {
-    if (provider) {
-      try {
-        await provider.send("wallet_switchEthereumChain", [{ chainId: `0x${chainId.toString(16)}` }]);
-      } catch (error) {
-        console.error("Failed to switch chain:", error);
-        setResult("Failed to switch to the correct chain. Please try again.");
-      }
-    }
-  };
-
-  const checkConnectionAndChain = async () => {
-    if (!signer) {
-      await connectWallet();
-    }
-    if (provider) {
-      const network = await provider.getNetwork();
-      if (network.chainId !== chainId) {
-        await switchChain();
-      }
-    }
-  };
-
-  const stake = async () => {
-    await checkConnectionAndChain();
-    if (contract && amount) {
-      try {
-        const tx = await contract.stake({ value: ethers.utils.parseEther(amount) });
-        await tx.wait();
-        setResult(`Successfully staked ${amount} ETH. Transaction hash: ${tx.hash}`);
-        await getStakedBalance();
-      } catch (error) {
-        console.error("Failed to stake:", error);
-        setResult("Failed to stake. Please check your input and try again.");
-      }
+  const handleAccountsChanged = (accounts: string[]) => {
+    if (accounts.length === 0) {
+      setAccount(null);
+      setSigner(null);
     } else {
-      setResult("Please enter an amount to stake and ensure wallet is connected.");
+      setAccount(accounts[0]);
     }
   };
 
-  const withdraw = async () => {
-    await checkConnectionAndChain();
-    if (contract && amount) {
-      try {
-        const tx = await contract.withdraw(ethers.utils.parseEther(amount));
-        await tx.wait();
-        setResult(`Successfully withdrawn ${amount} ETH. Transaction hash: ${tx.hash}`);
-        await getStakedBalance();
-      } catch (error) {
-        console.error("Failed to withdraw:", error);
-        setResult("Failed to withdraw. Please check your input and try again.");
-      }
-    } else {
-      setResult("Please enter an amount to withdraw and ensure wallet is connected.");
-    }
+  const handleChainChanged = () => {
+    // Reload the page as recommended by MetaMask
+    window.location.reload();
   };
 
-  const getStakedBalance = async () => {
-    await checkConnectionAndChain();
-    if (contract && signer) {
-      try {
-        const address = await signer.getAddress();
-        const balance = await contract.getStakedBalance(address);
-        const formattedBalance = ethers.utils.formatEther(balance);
-        setStakedBalance(formattedBalance);
-        setResult(`Your staked balance: ${formattedBalance} ETH`);
-      } catch (error) {
-        console.error("Failed to get staked balance:", error);
-        setResult("Failed to get staked balance. Please try again.");
-      }
-    } else {
-      setResult("Please ensure wallet is connected.");
-    }
-  };
+  window.ethereum.on('accountsChanged', handleAccountsChanged);
+  window.ethereum.on('chainChanged', handleChainChanged);
 
-  return (
-    <header className="bg-blue-500 text-white p-5 w-full">
-      <div className="container mx-auto">
-        <div className="text-2xl font-bold mb-4">ETH Staking on Holesky</div>
-        <div className="space-y-4">
-          <div>
-            <input
-              type="text"
-              placeholder="Amount (ETH)"
-              className="p-2 rounded-lg text-black w-full"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </div>
-          <div className="space-x-2">
-            <button onClick={stake} className="bg-green-500 hover:bg-green-600 p-2 rounded-lg">
-              Stake
-            </button>
-            <button onClick={withdraw} className="bg-yellow-500 hover:bg-yellow-600 p-2 rounded-lg">
-              Withdraw
-            </button>
-            <button onClick={getStakedBalance} className="bg-purple-500 hover:bg-purple-600 p-2 rounded-lg">
-              Check Balance
-            </button>
-          </div>
-          <div className="bg-white text-black p-2 rounded-lg">
-            <p>{result}</p>
-            {stakedBalance && <p>Current Staked Balance: {stakedBalance} ETH</p>}
-          </div>
-        </div>
-      </div>
-    </header>
-  );
+  // Check if already connected
+  window.ethereum.request({ method: 'eth_accounts' })
+    .then(handleAccountsChanged)
+    .catch(console.error);
+
+  return () => {
+    window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+    window.ethereum.removeListener('chainChanged', handleChainChanged);
+  };
+}, []);
+
+// Modified connect function
+const connectWallet = async () => {
+  if (!window.ethereum) {
+    setResult("Please install MetaMask");
+    return;
+  }
+
+  setIsConnecting(true);
+  try {
+    const accounts = await window.ethereum.request({
+      method: "eth_requestAccounts"
+    });
+    setAccount(accounts[0]);
+    await switchChain();
+  } catch (error) {
+    console.error("Connection error:", error);
+    setResult("Failed to connect wallet");
+  } finally {
+    setIsConnecting(false);
+  }
 };
 
-export { StakingHeader as component };
+// Enhanced chain switching
+const switchChain = async () => {
+  try {
+    await window.ethereum.request({
+      method: 'wallet_switchEthereumChain',
+      params: [{ chainId: `0x${chainId.toString(16)}` }],
+    });
+  } catch (error: any) {
+    // If the chain hasn't been added to MetaMask
+    if (error.code === 4902) {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: `0x${chainId.toString(16)}`,
+            chainName: 'Holesky Testnet',
+            nativeCurrency: {
+              name: 'ETH',
+              symbol: 'ETH',
+              decimals: 18
+            },
+            rpcUrls: ['https://rpc.holesky.ethpandaops.io'],
+            blockExplorerUrls: ['https://holesky.etherscan.io']
+          }]
+        });
+      } catch (addError) {
+        console.error("Failed to add network:", addError);
+        setResult("Failed to add Holesky network to MetaMask");
+      }
+    }
+  }
+};
