@@ -6,5 +6,15 @@
         "source": "base_assistant",
         "content": "Welcome to your new project! I can help you edit it however you want. What would you like to do?",
         "metadata": {}
+    },
+    {
+        "id": "0c7281f3-d63d-4cc8-aef7-6c130fe7ba6c",
+        "timestamp": "2024-11-26T08:53:49.068505Z",
+        "role": "user",
+        "source": "web_client",
+        "content": "generate a smart contract that allows me to stake holesky eth",
+        "metadata": {
+            "component_id": "Footer1732541879"
+        }
     }
 ]
