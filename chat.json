@@ -881,5 +881,15 @@
         "source": "base_assistant",
         "content": "I've updated the ethers import and initialization to be compatible with ethers version 5.0.0. Please try connecting the wallet again and let me know if the issue persists.",
         "metadata": {}
+    },
+    {
+        "id": "8ecf9455-ed4d-4ce1-87bd-735fab995b0a",
+        "timestamp": "2024-11-26T10:23:38.366937Z",
+        "role": "user",
+        "source": "web_client",
+        "content": "put a couple more of decimals in the quantitite of staked eth",
+        "metadata": {
+            "component_id": "Header1732541879"
+        }
     }
 ]
