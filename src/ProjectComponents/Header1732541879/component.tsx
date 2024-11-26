@@ -2,45 +2,56 @@
 import React, { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
-const UniswapV3FactoryInterface: React.FC = () => {
+const StakingHeader: React.FC = () => {
   const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
   const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [tokenA, setTokenA] = useState('');
-  const [tokenB, setTokenB] = useState('');
-  const [fee, setFee] = useState('');
-  const [poolAddress, setPoolAddress] = useState('');
+  const [amount, setAmount] = useState('');
+  const [stakedBalance, setStakedBalance] = useState('');
   const [result, setResult] = useState('');
 
-  const contractAddress = '0x1F98431c8aD98523631AE4a59f267346ea31F984';
-  const chainId = 1; // Ethereum Mainnet
+  const contractAddress = '0xFb0b65497fFd92B32c8899aEe19bb645cE1f7960';
+  const chainId = 17000; // Holesky testnet
 
   const contractABI = [
     {
-      name: "createPool",
-      stateMutability: "nonpayable",
-      inputs: [
-        { name: "tokenA", type: "address" },
-        { name: "tokenB", type: "address" },
-        { name: "fee", type: "uint24" }
-      ],
-      outputs: [{ name: "pool", type: "address" }]
+      "inputs": [],
+      "name": "stake",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
     },
     {
-      name: "getPool",
-      stateMutability: "view",
-      inputs: [
-        { name: "", type: "address" },
-        { name: "", type: "address" },
-        { name: "", type: "uint24" }
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
       ],
-      outputs: [{ name: "", type: "address" }]
+      "name": "withdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
     },
     {
-      name: "feeAmountTickSpacing",
-      stateMutability: "view",
-      inputs: [{ name: "", type: "uint24" }],
-      outputs: [{ name: "", type: "int24" }]
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "getStakedBalance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ];
 
@@ -51,8 +62,8 @@ const UniswapV3FactoryInterface: React.FC = () => {
         setProvider(web3Provider);
         const web3Signer = web3Provider.getSigner();
         setSigner(web3Signer);
-        const uniswapContract = new ethers.Contract(contractAddress, contractABI, web3Signer);
-        setContract(uniswapContract);
+        const stakingContract = new ethers.Contract(contractAddress, contractABI, web3Signer);
+        setContract(stakingContract);
       }
     };
 
@@ -95,99 +106,86 @@ const UniswapV3FactoryInterface: React.FC = () => {
     }
   };
 
-  const createPool = async () => {
+  const stake = async () => {
     await checkConnectionAndChain();
-    if (contract && tokenA && tokenB && fee) {
+    if (contract && amount) {
       try {
-        const tx = await contract.createPool(tokenA, tokenB, fee);
+        const tx = await contract.stake({ value: ethers.utils.parseEther(amount) });
         await tx.wait();
-        setResult(`Pool created successfully. Transaction hash: ${tx.hash}`);
+        setResult(`Successfully staked ${amount} ETH. Transaction hash: ${tx.hash}`);
+        await getStakedBalance();
       } catch (error) {
-        console.error("Failed to create pool:", error);
-        setResult("Failed to create pool. Please check your inputs and try again.");
+        console.error("Failed to stake:", error);
+        setResult("Failed to stake. Please check your input and try again.");
       }
     } else {
-      setResult("Please fill in all fields and ensure wallet is connected.");
+      setResult("Please enter an amount to stake and ensure wallet is connected.");
     }
   };
 
-  const getPool = async () => {
+  const withdraw = async () => {
     await checkConnectionAndChain();
-    if (contract && tokenA && tokenB && fee) {
+    if (contract && amount) {
       try {
-        const pool = await contract.getPool(tokenA, tokenB, fee);
-        setPoolAddress(pool);
-        setResult(`Pool address: ${pool}`);
+        const tx = await contract.withdraw(ethers.utils.parseEther(amount));
+        await tx.wait();
+        setResult(`Successfully withdrawn ${amount} ETH. Transaction hash: ${tx.hash}`);
+        await getStakedBalance();
       } catch (error) {
-        console.error("Failed to get pool:", error);
-        setResult("Failed to get pool. Please check your inputs and try again.");
+        console.error("Failed to withdraw:", error);
+        setResult("Failed to withdraw. Please check your input and try again.");
       }
     } else {
-      setResult("Please fill in all fields and ensure wallet is connected.");
+      setResult("Please enter an amount to withdraw and ensure wallet is connected.");
     }
   };
 
-  const getFeeAmountTickSpacing = async () => {
+  const getStakedBalance = async () => {
     await checkConnectionAndChain();
-    if (contract && fee) {
+    if (contract && signer) {
       try {
-        const tickSpacing = await contract.feeAmountTickSpacing(fee);
-        setResult(`Tick spacing for fee ${fee}: ${tickSpacing}`);
+        const address = await signer.getAddress();
+        const balance = await contract.getStakedBalance(address);
+        const formattedBalance = ethers.utils.formatEther(balance);
+        setStakedBalance(formattedBalance);
+        setResult(`Your staked balance: ${formattedBalance} ETH`);
       } catch (error) {
-        console.error("Failed to get fee amount tick spacing:", error);
-        setResult("Failed to get fee amount tick spacing. Please check your input and try again.");
+        console.error("Failed to get staked balance:", error);
+        setResult("Failed to get staked balance. Please try again.");
       }
     } else {
-      setResult("Please enter a fee amount and ensure wallet is connected.");
+      setResult("Please ensure wallet is connected.");
     }
   };
 
   return (
     <header className="bg-blue-500 text-white p-5 w-full">
       <div className="container mx-auto">
-        <div className="text-2xl font-bold mb-4">UniswapV3Factory Interface</div>
+        <div className="text-2xl font-bold mb-4">ETH Staking on Holesky</div>
         <div className="space-y-4">
           <div>
             <input
               type="text"
-              placeholder="Token A Address"
+              placeholder="Amount (ETH)"
               className="p-2 rounded-lg text-black w-full"
-              value={tokenA}
-              onChange={(e) => setTokenA(e.target.value)}
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Token B Address"
-              className="p-2 rounded-lg text-black w-full"
-              value={tokenB}
-              onChange={(e) => setTokenB(e.target.value)}
-            />
-          </div>
-          <div>
-            <input
-              type="text"
-              placeholder="Fee (in basis points)"
-              className="p-2 rounded-lg text-black w-full"
-              value={fee}
-              onChange={(e) => setFee(e.target.value)}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
             />
           </div>
           <div className="space-x-2">
-            <button onClick={createPool} className="bg-green-500 hover:bg-green-600 p-2 rounded-lg">
-              Create Pool
+            <button onClick={stake} className="bg-green-500 hover:bg-green-600 p-2 rounded-lg">
+              Stake
             </button>
-            <button onClick={getPool} className="bg-yellow-500 hover:bg-yellow-600 p-2 rounded-lg">
-              Get Pool
+            <button onClick={withdraw} className="bg-yellow-500 hover:bg-yellow-600 p-2 rounded-lg">
+              Withdraw
             </button>
-            <button onClick={getFeeAmountTickSpacing} className="bg-purple-500 hover:bg-purple-600 p-2 rounded-lg">
-              Get Fee Amount Tick Spacing
+            <button onClick={getStakedBalance} className="bg-purple-500 hover:bg-purple-600 p-2 rounded-lg">
+              Check Balance
             </button>
           </div>
           <div className="bg-white text-black p-2 rounded-lg">
             <p>{result}</p>
-            {poolAddress && <p>Pool Address: {poolAddress}</p>}
+            {stakedBalance && <p>Current Staked Balance: {stakedBalance} ETH</p>}
           </div>
         </div>
       </div>
@@ -195,4 +193,4 @@ const UniswapV3FactoryInterface: React.FC = () => {
   );
 };
 
-export { UniswapV3FactoryInterface as component };
+export { StakingHeader as component };
