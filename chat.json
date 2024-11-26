@@ -74,5 +74,13 @@
         "metadata": {
             "tool_call_id": "call_yH3mrj7V5XgedW3SgDM7HXTA"
         }
+    },
+    {
+        "id": "601e3bbc-ad5f-4ba2-a880-4464c85f2364",
+        "timestamp": "2024-11-26T08:54:37.475211Z",
+        "role": "assistant",
+        "source": "smart_contract_assistant",
+        "content": "The smart contract for staking HOLESKY ETH has been generated successfully. Would you like to deploy it now?",
+        "metadata": {}
     }
 ]
