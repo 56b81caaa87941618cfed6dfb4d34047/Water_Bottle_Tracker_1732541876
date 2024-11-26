@@ -82,5 +82,15 @@
         "source": "smart_contract_assistant",
         "content": "The smart contract for staking HOLESKY ETH has been generated successfully. Would you like to deploy it now?",
         "metadata": {}
+    },
+    {
+        "id": "fd07b4be-a9a2-4983-9bc7-b904ea351217",
+        "timestamp": "2024-11-26T08:57:07.732491Z",
+        "role": "user",
+        "source": "web_client",
+        "content": "yes deploy it",
+        "metadata": {
+            "component_id": "Footer1732541879"
+        }
     }
 ]
